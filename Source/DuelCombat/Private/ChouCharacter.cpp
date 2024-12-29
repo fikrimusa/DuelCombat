@@ -64,6 +64,17 @@ void AChouCharacter::Move(const FInputActionValue& InputValue)
 
 }
 
+void AChouCharacter::Look(const FInputActionValue& InputValue)
+{
+	FVector2d InputVector = InputValue.Get<FVector2d>();
+
+	if (IsValid(Controller))
+	{
+		AddControllerYawInput(InputVector.X);
+		AddControllerPitchInput(InputVector.Y);
+	}
+}
+
 // Called every frame
 void AChouCharacter::Tick(float DeltaTime)
 {
@@ -81,6 +92,7 @@ void AChouCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		
 		//Movement actions
 		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AChouCharacter::Move);
+		Input->BindAction(LookAction, ETriggerEvent::Triggered, this, &AChouCharacter::Look);
 	}
 
 }

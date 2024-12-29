@@ -37,8 +37,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category="EnhancedInput")
 	UInputAction* MoveAction;
 
+	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
+	UInputAction* LookAction;
+
 	//Movement
 	void Move(const FInputActionValue& InputValue);
+	void Look(const FInputActionValue& InputValue);
 
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
