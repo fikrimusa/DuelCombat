@@ -6,6 +6,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Layers/LayersSubsystem.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AChouCharacter::AChouCharacter()
@@ -21,6 +23,10 @@ AChouCharacter::AChouCharacter()
 	FollowCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
 	FollowCameraComponent->bUsePawnControlRotation = false;
+
+	// Jump settings
+	GetCharacterMovement()->JumpZVelocity = 300.f;
+	GetCharacterMovement()->AirControl = 0.1f;
 
 }
 
@@ -75,6 +81,28 @@ void AChouCharacter::Look(const FInputActionValue& InputValue)
 	}
 }
 
+void AChouCharacter::Jump()
+{
+	//Call parent class jump function
+	Super::Jump();
+
+	if (GetCharacterMovement()->IsMovingOnGround())
+	{
+		// Get current forward velocity
+		FVector ForwardVelocity = GetVelocity();
+		ForwardVelocity.Z = 0;
+
+		// Define jump vertical velocity
+		float JumpVerticalVelocity = GetCharacterMovement()->JumpZVelocity;
+
+		// Combine current forward velocity with jump vertical velocity
+		FVector JumpVelocity = ForwardVelocity + FVector(0, 0, JumpVerticalVelocity);
+
+		// Launch character with the combined velocity
+		LaunchCharacter(JumpVelocity, true, true);
+	}
+}
+
 // Called every frame
 void AChouCharacter::Tick(float DeltaTime)
 {
@@ -93,6 +121,7 @@ void AChouCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		//Movement actions
 		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AChouCharacter::Move);
 		Input->BindAction(LookAction, ETriggerEvent::Triggered, this, &AChouCharacter::Look);
+		Input->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AChouCharacter::Jump);
 	}
 
 }
