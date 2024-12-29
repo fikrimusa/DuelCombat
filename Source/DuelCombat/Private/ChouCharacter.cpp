@@ -8,6 +8,7 @@
 #include "EnhancedInputComponent.h"
 #include "Layers/LayersSubsystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "ChouAnimInstance.h"
 
 // Sets default values
 AChouCharacter::AChouCharacter()
@@ -106,11 +107,27 @@ void AChouCharacter::Jump()
 void AChouCharacter::BasicAttack()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Basic Attack"));
+	AnimMontagePlay(AttackMontage, FName("Attack1"));
 }
 
 void AChouCharacter::HeavyAttack()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Heavy Attack"));
+	AnimMontagePlay(AttackMontage, FName("Attack2"), 2.f);
+}
+
+void AChouCharacter::AnimMontagePlay(UAnimMontage* MontageToPlay, FName SectionName, float Playrate)
+{
+	UChouAnimInstance* AnimInstance = Cast<UChouAnimInstance>(GetMesh()->GetAnimInstance());
+	if (AnimInstance && MontageToPlay)
+	{
+		// Check to see if montage is playing
+		if (!AnimInstance->Montage_IsPlaying(MontageToPlay))
+		{
+			PlayAnimMontage(MontageToPlay, Playrate, SectionName);
+
+		}
+	}
 }
 
 // Called every frame

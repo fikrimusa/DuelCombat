@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
 class UInputAction;
+class UAnimMontage;
 
 UCLASS()
 class DUELCOMBAT_API AChouCharacter : public ACharacter
@@ -59,11 +60,17 @@ protected:
 	void BasicAttack();
 	void HeavyAttack();
 
+	void AnimMontagePlay(UAnimMontage* MontageToPlay, FName SectionName = "Default", float Playrate = 1.0f);
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
 	USpringArmComponent* SpringArmComponent;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCameraComponent;
+
+	// Montage
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Montage", meta=(AllowPrivateAccess = "true"))
+	UAnimMontage* AttackMontage;
 
 };
