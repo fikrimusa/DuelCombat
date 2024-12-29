@@ -4,6 +4,8 @@
 #include "ChouCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "EnhancedInputSubsystems.h"
+#include "EnhancedInputComponent.h"
 
 // Sets default values
 AChouCharacter::AChouCharacter()
@@ -27,6 +29,39 @@ void AChouCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	// Add input mapping content
+	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
+	{
+		//Get local player subsystem
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		{
+			//Add input context
+			Subsystem->AddMappingContext(InputMapping, 0);
+
+		}
+
+	}
+}
+
+void AChouCharacter::Move(const FInputActionValue& InputValue)
+{
+	FVector2d InputVector = InputValue.Get<FVector2d>();
+
+	if (IsValid(Controller))
+	{
+		// Get forward direction
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+
+		//Rotation matrix
+		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+		// Add movement input
+		AddMovementInput(ForwardDirection, InputVector.Y);
+		AddMovementInput(RightDirection, InputVector.X);
+	}
+
 }
 
 // Called every frame
@@ -40,6 +75,13 @@ void AChouCharacter::Tick(float DeltaTime)
 void AChouCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	// Movement actions
+	if (UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
+		
+		//Movement actions
+		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AChouCharacter::Move);
+	}
 
 }
 
