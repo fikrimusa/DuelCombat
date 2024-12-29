@@ -103,6 +103,16 @@ void AChouCharacter::Jump()
 	}
 }
 
+void AChouCharacter::BasicAttack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Basic Attack"));
+}
+
+void AChouCharacter::HeavyAttack()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Heavy Attack"));
+}
+
 // Called every frame
 void AChouCharacter::Tick(float DeltaTime)
 {
@@ -122,6 +132,10 @@ void AChouCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AChouCharacter::Move);
 		Input->BindAction(LookAction, ETriggerEvent::Triggered, this, &AChouCharacter::Look);
 		Input->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AChouCharacter::Jump);
+
+		//Attack actions
+		Input->BindAction(BasicAttackAction, ETriggerEvent::Triggered, this, &AChouCharacter::BasicAttack);
+		Input->BindAction(HeavyAttackAction, ETriggerEvent::Triggered, this, &AChouCharacter::HeavyAttack);
 	}
 
 }
