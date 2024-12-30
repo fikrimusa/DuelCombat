@@ -28,3 +28,24 @@ void AEnemy::Tick(float DeltaTime)
 
 }
 
+void AEnemy::HitInterface_Implementation(FHitResult HitResult)
+{
+
+}
+
+float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EvenInstigator, AActor* DamageCauser)
+{
+	if (Health - DamageAmount <= 0.f)
+	{
+		Health = 0.f;
+		// call blueprint function to play death montage and clean things up
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Enemy died!"));
+	}
+	else
+	{
+		Health -= DamageAmount;
+	}
+
+	return DamageAmount;
+}
+

@@ -9,9 +9,12 @@
 #include "Layers/LayersSubsystem.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "ChouAnimInstance.h"
+#include "HitInterface.h"
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values
-AChouCharacter::AChouCharacter()
+AChouCharacter::AChouCharacter() :
+	BaseDamage(20.f)
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -130,6 +133,27 @@ void AChouCharacter::AnimMontagePlay(UAnimMontage* MontageToPlay, FName SectionN
 	}
 }
 
+void AChouCharacter::OnRightWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (IsValid(SweepResult.GetActor()) && SweepResult.GetActor() != this)
+	{
+		IHitInterface* HitInterface = Cast<IHitInterface>(SweepResult.GetActor());
+		if (HitInterface)
+		{
+			HitInterface->HitInterface_Implementation(SweepResult);
+		}
+
+		// Apply damage to enemy
+		UGameplayStatics::ApplyDamage(
+			SweepResult.GetActor(),
+			BaseDamage,
+			GetController(),
+			this,
+			UDamageType::StaticClass());
+	}
+}
+
 // Called every frame
 void AChouCharacter::Tick(float DeltaTime)
 {
@@ -157,3 +181,12 @@ void AChouCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 
 }
 
+void AChouCharacter::ActivateRightWeapon()
+{
+	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AChouCharacter::DeactivateRightWeapon()
+{
+	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}

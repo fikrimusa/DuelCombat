@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Components/BoxComponent.h"
 #include "ChouCharacter.generated.h"
 
 class USpringArmComponent;
@@ -27,6 +28,10 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	// Activate and deactivate weapon boxes
+	virtual void ActivateRightWeapon();
+	virtual void DeactivateRightWeapon();
 
 protected:
 	// Called when the game starts or when spawned
@@ -62,6 +67,16 @@ protected:
 
 	void AnimMontagePlay(UAnimMontage* MontageToPlay, FName SectionName = "Default", float Playrate = 1.0f);
 
+	// Right weapon overlap
+	UFUNCTION()
+	void OnRightWeaponOverlap(
+		UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
 	USpringArmComponent* SpringArmComponent;
@@ -72,5 +87,17 @@ private:
 	// Montage
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Montage", meta=(AllowPrivateAccess = "true"))
 	UAnimMontage* AttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* RightWeaponCollision;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float BaseDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float Health;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float MaxHealth;
 
 };
