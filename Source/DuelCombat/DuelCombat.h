@@ -1,6 +1,5 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Developed by Fikri
 
 #pragma once
 
 #include "CoreMinimal.h"
-

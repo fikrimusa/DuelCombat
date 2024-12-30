@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Developed by Fikri
 
 #pragma once
 
@@ -12,30 +12,33 @@ class DUELCOMBAT_API AEnemy : public ACharacter, public IHitInterface
 {
 	GENERATED_BODY()
 
-	public:
-		// Sets default values for this character's properties
-		AEnemy();
+public:
+	// Sets default values for this enemy character's properties (e.g., health, damage).
+	AEnemy();
 
-		// Called every frame
-		virtual void Tick(float DeltaTime) override;
+	// Called every frame to update the enemy's state (e.g., movement, AI).
+	virtual void Tick(float DeltaTime) override;
 
-		virtual void HitInterface_Implementation(FHitResult HitResult) override;
+	// Implementation of the HitInterface. Handles what happens when the enemy is hit.
+	virtual void HitInterface_Implementation(FHitResult HitResult) override;
 
-		virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EvenInstigator, AActor* DamageCauser) override;
+	// Called when the enemy takes damage. Updates health and handles damage logic.
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EvenInstigator, AActor* DamageCauser) override;
 
-	protected:
-		// Called when the game starts or when spawned
-		virtual void BeginPlay() override;
+protected:
+	// Called when the game starts or when the enemy is spawned in the world.
+	virtual void BeginPlay() override;
 
-	private:	
-		// base damage
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combat", meta = (AllowPrivateAccess = "true"))
-		float BaseDamage;
+private:
+	// Base damage the enemy inflicts with attacks.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float BaseDamage;
 
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Combat", meta=(AllowPrivateAccess="true"))
-		float Health;
+	// Current health of the enemy.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float Health;
 
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-		float MaxHealth;
-
+	// Maximum health the enemy can have.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	float MaxHealth;
 };

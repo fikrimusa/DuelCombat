@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Developed by Fikri
 
 #include "Enemy/EnemyAnimInstance.h"
 #include "Enemy/Enemy.h"

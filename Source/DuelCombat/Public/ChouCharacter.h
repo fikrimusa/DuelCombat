@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Developed by Fikri
 
 #pragma once
 
@@ -20,54 +20,68 @@ class DUELCOMBAT_API AChouCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
+	// Default constructor for AChouCharacter. Sets default values for character properties.
 	AChouCharacter();
 
-	// Called every frame
+	// Called every frame to update character's state.
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
+	// Binds input actions to the player input component.
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// Activate and deactivate weapon boxes
+	// Activates the right weapon's hitbox or collision component.
 	virtual void ActivateRightWeapon();
+
+	// Deactivates the right weapon's hitbox or collision component.
 	virtual void DeactivateRightWeapon();
 
 protected:
-	// Called when the game starts or when spawned
+	// Called when the game starts or when the character is spawned in the game world.
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, Category="EnhancedInput")
+	// Input mapping for enhanced input system. Associates input actions to gameplay actions.
+	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputMappingContext* InputMapping;
 
-	UPROPERTY(EditAnywhere, Category="EnhancedInput")
+	// Action for moving the character.
+	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputAction* MoveAction;
 
+	// Action for looking (camera control).
 	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputAction* LookAction;
 
+	// Action for jumping.
 	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputAction* JumpAction;
 
+	// Action for basic attack input.
 	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputAction* BasicAttackAction;
 
+	// Action for heavy attack input.
 	UPROPERTY(EditAnywhere, Category = "EnhancedInput")
 	UInputAction* HeavyAttackAction;
 
-
-	//Movement
+	// Movement functions called based on player input.
 	void Move(const FInputActionValue& InputValue);
+
+	// Camera look (mouse or analog stick input).
 	void Look(const FInputActionValue& InputValue);
+
+	// Executes jump action.
 	void Jump();
 
-	//Attack
+	// Executes basic attack functionality.
 	void BasicAttack();
+
+	// Executes heavy attack functionality.
 	void HeavyAttack();
 
+	// Plays an animation montage for combat actions.
 	void AnimMontagePlay(UAnimMontage* MontageToPlay, FName SectionName = "Default", float Playrate = 1.0f);
 
-	// Right weapon overlap
+	// Handles the overlap event for the right weapon's collision box.
 	UFUNCTION()
 	void OnRightWeaponOverlap(
 		UPrimitiveComponent* OverlappedComponent,
@@ -78,26 +92,31 @@ protected:
 		const FHitResult& SweepResult);
 
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Camera", meta=(AllowPrivateAccess="true"))
+	// Camera system for following the character's movement.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* SpringArmComponent;
 
+	// Camera component that provides the player's view of the game world.
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCameraComponent;
 
-	// Montage
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Montage", meta=(AllowPrivateAccess = "true"))
+	// Animation montage for combat-related actions (attacks, etc.).
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Montage", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* AttackMontage;
 
+	// Collision box for detecting right weapon hits.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UBoxComponent* RightWeaponCollision;
 
+	// Base damage value applied by the character's attacks.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	float BaseDamage;
 
+	// Current health of the character.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	float Health;
 
+	// Maximum health of the character.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	float MaxHealth;
-
 };

@@ -1,5 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
+// Developed by Fikri
 
 #include "ChouCharacter.h"
 #include "Camera/CameraComponent.h"
@@ -12,141 +11,136 @@
 #include "HitInterface.h"
 #include <Kismet/GameplayStatics.h>
 
-// Sets default values
+// Sets default values for this character's properties
 AChouCharacter::AChouCharacter() :
-	BaseDamage(20.f)
+	BaseDamage(20.f) // Initialize Base Damage
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame. Disable it if unnecessary for performance.
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Set up the camera boom (SpringArm) for third-person view
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	SpringArmComponent->SetupAttachment(RootComponent);
-	SpringArmComponent->TargetArmLength = 400.f;
-	SpringArmComponent->bUsePawnControlRotation = true;
+	SpringArmComponent->TargetArmLength = 400.f; // Set distance of the camera from character
+	SpringArmComponent->bUsePawnControlRotation = true; // Allow camera to rotate with player control
 
+	// Set up the follow camera
 	FollowCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCameraComponent->SetupAttachment(SpringArmComponent, USpringArmComponent::SocketName);
-	FollowCameraComponent->bUsePawnControlRotation = false;
+	FollowCameraComponent->bUsePawnControlRotation = false; // Prevent camera rotation from pawn
 
-	// Jump settings
-	GetCharacterMovement()->JumpZVelocity = 300.f;
-	GetCharacterMovement()->AirControl = 0.1f;
+	// Jump settings for movement
+	GetCharacterMovement()->JumpZVelocity = 300.f; // Vertical speed for jump
+	GetCharacterMovement()->AirControl = 0.1f; // Control when in the air
 
-	// Right weapon collision box
+	// Right weapon collision box setup
 	RightWeaponCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Right Weapon"));
-	RightWeaponCollision->SetupAttachment(GetMesh(), FName("FistSocket"));
-
+	RightWeaponCollision->SetupAttachment(GetMesh(), FName("FistSocket")); // Attach to fist socket
 }
 
 // Called when the game starts or when spawned
 void AChouCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	// Add input mapping content
+
+	// Add input mapping context for enhanced input system
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
-		//Get local player subsystem
 		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
 		{
-			//Add input context
-			Subsystem->AddMappingContext(InputMapping, 0);
-
+			Subsystem->AddMappingContext(InputMapping, 0); // Add input context
 		}
-
 	}
 
-	// Bind function to overlap event for weapon box
+	// Bind the overlap event for the right weapon collision box
 	RightWeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AChouCharacter::OnRightWeaponOverlap);
 
-	// Setup right weapon collision box
-	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	RightWeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	RightWeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	RightWeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
-
+	// Configure collision properties for the weapon box
+	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision); // Disable collision by default
+	RightWeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic); // Weapon is a world dynamic object
+	RightWeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore); // Ignore all channels
+	RightWeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap); // Trigger overlap with pawns
 }
 
+// Handle player movement input (forward/backward/side-to-side)
 void AChouCharacter::Move(const FInputActionValue& InputValue)
 {
 	FVector2d InputVector = InputValue.Get<FVector2d>();
 
 	if (IsValid(Controller))
 	{
-		// Get forward direction
+		// Get forward direction from controller's control rotation
 		const FRotator Rotation = Controller->GetControlRotation();
-		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		const FRotator YawRotation(0, Rotation.Yaw, 0); // Use only yaw for movement direction
 
-		//Rotation matrix
+		// Get unit direction vectors for forward and right movement
 		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 
-		// Add movement input
+		// Add movement input based on the player's input values
 		AddMovementInput(ForwardDirection, InputVector.Y);
 		AddMovementInput(RightDirection, InputVector.X);
 	}
-
 }
 
+// Handle player looking around input (camera rotation)
 void AChouCharacter::Look(const FInputActionValue& InputValue)
 {
 	FVector2d InputVector = InputValue.Get<FVector2d>();
 
 	if (IsValid(Controller))
 	{
-		AddControllerYawInput(InputVector.X);
-		AddControllerPitchInput(InputVector.Y);
+		AddControllerYawInput(InputVector.X); // Yaw rotation (turning)
+		AddControllerPitchInput(InputVector.Y); // Pitch rotation (looking up/down)
 	}
 }
 
+// Override jump behavior to combine forward velocity with upward velocity
 void AChouCharacter::Jump()
 {
-	//Call parent class jump function
-	Super::Jump();
+	Super::Jump(); // Call base class Jump()
 
 	if (GetCharacterMovement()->IsMovingOnGround())
 	{
-		// Get current forward velocity
+		// Get current forward velocity and adjust vertical velocity for jumping
 		FVector ForwardVelocity = GetVelocity();
-		ForwardVelocity.Z = 0;
-
-		// Define jump vertical velocity
+		ForwardVelocity.Z = 0; // Zero out Z-axis for horizontal velocity
 		float JumpVerticalVelocity = GetCharacterMovement()->JumpZVelocity;
 
-		// Combine current forward velocity with jump vertical velocity
+		// Launch character with combined forward and vertical velocities
 		FVector JumpVelocity = ForwardVelocity + FVector(0, 0, JumpVerticalVelocity);
-
-		// Launch character with the combined velocity
 		LaunchCharacter(JumpVelocity, true, true);
 	}
 }
 
+// Basic attack: Play animation for basic attack
 void AChouCharacter::BasicAttack()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Basic Attack"));
 	AnimMontagePlay(AttackMontage, FName("Attack1"));
 }
 
+// Heavy attack: Play animation for heavy attack
 void AChouCharacter::HeavyAttack()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Heavy Attack"));
 	AnimMontagePlay(AttackMontage, FName("Attack2"), 2.f);
 }
 
+// Play animation montage, checking if it is already playing to avoid overlap
 void AChouCharacter::AnimMontagePlay(UAnimMontage* MontageToPlay, FName SectionName, float Playrate)
 {
 	UChouAnimInstance* AnimInstance = Cast<UChouAnimInstance>(GetMesh()->GetAnimInstance());
 	if (AnimInstance && MontageToPlay)
 	{
-		// Check to see if montage is playing
-		if (!AnimInstance->Montage_IsPlaying(MontageToPlay))
+		if (!AnimInstance->Montage_IsPlaying(MontageToPlay)) // Avoid playing the same montage multiple times
 		{
 			PlayAnimMontage(MontageToPlay, Playrate, SectionName);
-
 		}
 	}
 }
 
+// Handle weapon collision overlap and apply damage if valid target is hit
 void AChouCharacter::OnRightWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -156,51 +150,51 @@ void AChouCharacter::OnRightWeaponOverlap(UPrimitiveComponent* OverlappedCompone
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Apply Damage"));
 		if (HitInterface)
 		{
-			HitInterface->HitInterface_Implementation(SweepResult);
+			HitInterface->HitInterface_Implementation(SweepResult); // Apply hit to interface
 		}
 
-		// Apply damage to enemy
+		// Apply damage using Unreal's ApplyDamage function
 		UGameplayStatics::ApplyDamage(
 			SweepResult.GetActor(),
-			BaseDamage,
+			BaseDamage, // Apply the base damage value
 			GetController(),
 			this,
 			UDamageType::StaticClass());
 	}
 }
 
-// Called every frame
+// Called every frame to update character state
 void AChouCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
-// Called to bind functionality to input
+// Bind input actions to corresponding functions (e.g., movement, attacks)
 void AChouCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	// Movement actions
-	if (UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
-		
-		//Movement actions
+	if (UEnhancedInputComponent* Input = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		// Bind movement input actions to corresponding functions
 		Input->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AChouCharacter::Move);
 		Input->BindAction(LookAction, ETriggerEvent::Triggered, this, &AChouCharacter::Look);
 		Input->BindAction(JumpAction, ETriggerEvent::Triggered, this, &AChouCharacter::Jump);
 
-		//Attack actions
+		// Bind attack input actions to corresponding functions
 		Input->BindAction(BasicAttackAction, ETriggerEvent::Triggered, this, &AChouCharacter::BasicAttack);
 		Input->BindAction(HeavyAttackAction, ETriggerEvent::Triggered, this, &AChouCharacter::HeavyAttack);
 	}
-
 }
 
+// Activate the right weapon's collision box for interactions
 void AChouCharacter::ActivateRightWeapon()
 {
 	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
+// Deactivate the right weapon's collision box
 void AChouCharacter::DeactivateRightWeapon()
 {
 	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
