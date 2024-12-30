@@ -32,6 +32,10 @@ AChouCharacter::AChouCharacter() :
 	GetCharacterMovement()->JumpZVelocity = 300.f;
 	GetCharacterMovement()->AirControl = 0.1f;
 
+	// Right weapon collision box
+	RightWeaponCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Right Weapon"));
+	RightWeaponCollision->SetupAttachment(GetMesh(), FName("FistSocket"));
+
 }
 
 // Called when the game starts or when spawned
@@ -51,6 +55,16 @@ void AChouCharacter::BeginPlay()
 		}
 
 	}
+
+	// Bind function to overlap event for weapon box
+	RightWeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AChouCharacter::OnRightWeaponOverlap);
+
+	// Setup right weapon collision box
+	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightWeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	RightWeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	RightWeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
 }
 
 void AChouCharacter::Move(const FInputActionValue& InputValue)
@@ -139,6 +153,7 @@ void AChouCharacter::OnRightWeaponOverlap(UPrimitiveComponent* OverlappedCompone
 	if (IsValid(SweepResult.GetActor()) && SweepResult.GetActor() != this)
 	{
 		IHitInterface* HitInterface = Cast<IHitInterface>(SweepResult.GetActor());
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Apply Damage"));
 		if (HitInterface)
 		{
 			HitInterface->HitInterface_Implementation(SweepResult);
