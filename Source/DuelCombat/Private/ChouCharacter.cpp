@@ -33,10 +33,15 @@ AChouCharacter::AChouCharacter() :
 	GetCharacterMovement()->JumpZVelocity = 300.f; // Vertical speed for jump
 	GetCharacterMovement()->AirControl = 0.1f; // Control when in the air
 
-	// Right weapon collision box setup
-	RightWeaponCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("FistPunch"));
-	RightWeaponCollisionBox->SetupAttachment(RootComponent);
-	RightWeaponCollisionBox->SetHiddenInGame(false);
+	// Right fist collision box setup
+	RightFistCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("FistAction"));
+	RightFistCollisionBox->SetupAttachment(RootComponent);
+	RightFistCollisionBox->SetHiddenInGame(false);
+
+	// Right kick collision box setup
+	RightKickCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("KickAction"));
+	RightKickCollisionBox->SetupAttachment(RootComponent);
+	RightKickCollisionBox->SetHiddenInGame(false);
 }
 
 // Called when the game starts or when spawned
@@ -53,17 +58,26 @@ void AChouCharacter::BeginPlay()
 		}
 	}
 
-	const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
-	RightWeaponCollisionBox->AttachToComponent(GetMesh(), AttachmentRules, "FistCollision");
+	const FAttachmentTransformRules AttachmentRules1(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
+	RightFistCollisionBox->AttachToComponent(GetMesh(), AttachmentRules1, "FistCollision");
 
-	// Bind the overlap event for the right weapon collision box
-	RightWeaponCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AChouCharacter::OnRightWeaponOverlap);
+	RightFistCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AChouCharacter::OnRightWeaponOverlap);
 	
-	// Configure collision properties for the weapon box
-	RightWeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	RightWeaponCollisionBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
-	RightWeaponCollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	RightWeaponCollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	RightFistCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightFistCollisionBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	RightFistCollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	RightFistCollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+
+	const FAttachmentTransformRules AttachmentRules2(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
+	RightKickCollisionBox->AttachToComponent(GetMesh(), AttachmentRules2, "KickCollision");
+
+	RightKickCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AChouCharacter::OnRightWeaponOverlap);
+
+	RightKickCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightKickCollisionBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	RightKickCollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	RightKickCollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 }
 
 // Handle player movement input (forward/backward/side-to-side)
@@ -202,14 +216,22 @@ void AChouCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 	}
 }
 
-// Activate the right weapon's collision box for interactions
-void AChouCharacter::ActivateRightWeapon()
+void AChouCharacter::ActivateRightFist()
 {
-	RightWeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	RightFistCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
-// Deactivate the right weapon's collision box
-void AChouCharacter::DeactivateRightWeapon()
+void AChouCharacter::DeactivateRightFist()
 {
-	RightWeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightFistCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void AChouCharacter::ActivateRightKick()
+{
+	RightKickCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AChouCharacter::DeactivateRightKick()
+{
+	RightKickCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

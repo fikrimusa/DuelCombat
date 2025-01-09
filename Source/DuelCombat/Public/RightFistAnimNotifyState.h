@@ -16,6 +16,10 @@ class DUELCOMBAT_API URightFistAnimNotifyState : public UAnimNotifyState
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack Type")
+	bool bIsRightFist; // Set to true for fist, false for kick
+
 	UPROPERTY()
 	AChouCharacter* ChouCharacter;
 

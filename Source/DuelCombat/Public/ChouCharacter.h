@@ -29,11 +29,17 @@ public:
 	// Binds input actions to the player input component.
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	// Activates the right weapon's hitbox or collision component.
-	virtual void ActivateRightWeapon();
+	// Activates the right fist hitbox or collision component.
+	virtual void ActivateRightFist();
 
-	// Deactivates the right weapon's hitbox or collision component.
-	virtual void DeactivateRightWeapon();
+	// Deactivates the right fist hitbox or collision component.
+	virtual void DeactivateRightFist();
+
+	// Activates the left kick hitbox or collision component.
+	virtual void ActivateRightKick();
+
+	// Deactivates the left kick hitbox or collision component.
+	virtual void DeactivateRightKick();
 
 protected:
 	// Called when the game starts or when the character is spawned in the game world.
@@ -106,7 +112,11 @@ private:
 
 	// Collision box for detecting right weapon hits.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	UBoxComponent* RightWeaponCollisionBox;
+	UBoxComponent* RightFistCollisionBox;
+
+	// Collision box for detecting right weapon hits.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UBoxComponent* RightKickCollisionBox;
 
 	// Base damage value applied by the character's attacks.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
