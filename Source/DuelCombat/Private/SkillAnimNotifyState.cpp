@@ -1,6 +1,6 @@
-#include "RightFistAnimNotifyState.h"
+#include "SkillAnimNotifyState.h"
 
-void URightFistAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
+void USkillAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
     if (MeshComp && MeshComp->GetOwner())
     {
@@ -19,7 +19,7 @@ void URightFistAnimNotifyState::NotifyBegin(USkeletalMeshComponent* MeshComp, UA
     }
 }
 
-void URightFistAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
+void USkillAnimNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, const FAnimNotifyEventReference& EventReference)
 {
     if (MeshComp && MeshComp->GetOwner())
     {

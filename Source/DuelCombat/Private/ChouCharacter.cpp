@@ -168,27 +168,17 @@ void AChouCharacter::OnRightWeaponOverlap(UPrimitiveComponent* OverlappedCompone
 		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Apply Damage"));
 		if (HitInterface)
 		{
-			HitInterface->HitInterface_Implementation(SweepResult); // Apply hit to interface
+			HitInterface->HitInterface_Implementation(SweepResult);
 		}
 
-	// Apply damage using Unreal's ApplyDamage function
 		UGameplayStatics::ApplyDamage(
 			SweepResult.GetActor(),
-			BaseDamage, // Apply the base damage value
+			BaseDamage,
 			GetController(),
 			this,
 			UDamageType::StaticClass());
 	}
 
-	//if (IsValid(SweepResult.GetActor()) && SweepResult.GetActor() != this)
-	//{
-	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Apply Damage"));
-	//
-	//}
-	//else 
-	//{
-	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Not Valid"));
-	//}
 }
 
 // Called every frame to update character state

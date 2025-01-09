@@ -5,13 +5,13 @@
 #include "CoreMinimal.h"
 #include "ChouCharacter.h"
 #include "Animation/AnimNotifies/AnimNotifyState.h"
-#include "RightFistAnimNotifyState.generated.h"
+#include "SkillAnimNotifyState.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class DUELCOMBAT_API URightFistAnimNotifyState : public UAnimNotifyState
+class DUELCOMBAT_API USkillAnimNotifyState : public UAnimNotifyState
 {
 	GENERATED_BODY()
 
