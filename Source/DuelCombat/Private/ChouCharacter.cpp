@@ -148,33 +148,33 @@ void AChouCharacter::AnimMontagePlay(UAnimMontage* MontageToPlay, FName SectionN
 void AChouCharacter::OnRightWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//if (IsValid(SweepResult.GetActor()) && SweepResult.GetActor() != this)
-	//{
-	//	IHitInterface* HitInterface = Cast<IHitInterface>(SweepResult.GetActor());
-	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Apply Damage"));
-	//	if (HitInterface)
-	//	{
-	//		HitInterface->HitInterface_Implementation(SweepResult); // Apply hit to interface
-	//	}
-
-	//	// Apply damage using Unreal's ApplyDamage function
-	//	UGameplayStatics::ApplyDamage(
-	//		SweepResult.GetActor(),
-	//		BaseDamage, // Apply the base damage value
-	//		GetController(),
-	//		this,
-	//		UDamageType::StaticClass());
-	//}
-
 	if (IsValid(SweepResult.GetActor()) && SweepResult.GetActor() != this)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Apply Damage"));
-	
+		IHitInterface* HitInterface = Cast<IHitInterface>(SweepResult.GetActor());
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Apply Damage"));
+		if (HitInterface)
+		{
+			HitInterface->HitInterface_Implementation(SweepResult); // Apply hit to interface
+		}
+
+	// Apply damage using Unreal's ApplyDamage function
+		UGameplayStatics::ApplyDamage(
+			SweepResult.GetActor(),
+			BaseDamage, // Apply the base damage value
+			GetController(),
+			this,
+			UDamageType::StaticClass());
 	}
-	else 
-	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Not Valid"));
-	}
+
+	//if (IsValid(SweepResult.GetActor()) && SweepResult.GetActor() != this)
+	//{
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Apply Damage"));
+	//
+	//}
+	//else 
+	//{
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Not Valid"));
+	//}
 }
 
 // Called every frame to update character state
