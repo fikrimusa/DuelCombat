@@ -34,8 +34,9 @@ AChouCharacter::AChouCharacter() :
 	GetCharacterMovement()->AirControl = 0.1f; // Control when in the air
 
 	// Right weapon collision box setup
-	RightWeaponCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Right Weapon"));
-	RightWeaponCollision->SetupAttachment(GetMesh(), FName("FistSocket")); // Attach to fist socket
+	RightWeaponCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("FistPunch"));
+	RightWeaponCollisionBox->SetupAttachment(RootComponent);
+	RightWeaponCollisionBox->SetHiddenInGame(false);
 }
 
 // Called when the game starts or when spawned
@@ -52,14 +53,17 @@ void AChouCharacter::BeginPlay()
 		}
 	}
 
-	// Bind the overlap event for the right weapon collision box
-	RightWeaponCollision->OnComponentBeginOverlap.AddDynamic(this, &AChouCharacter::OnRightWeaponOverlap);
+	const FAttachmentTransformRules AttachmentRules(EAttachmentRule::SnapToTarget, EAttachmentRule::SnapToTarget, EAttachmentRule::KeepWorld, false);
+	RightWeaponCollisionBox->AttachToComponent(GetMesh(), AttachmentRules, "FistCollision");
 
+	// Bind the overlap event for the right weapon collision box
+	RightWeaponCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AChouCharacter::OnRightWeaponOverlap);
+	
 	// Configure collision properties for the weapon box
-	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision); // Disable collision by default
-	RightWeaponCollision->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic); // Weapon is a world dynamic object
-	RightWeaponCollision->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore); // Ignore all channels
-	RightWeaponCollision->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap); // Trigger overlap with pawns
+	RightWeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightWeaponCollisionBox->SetCollisionObjectType(ECollisionChannel::ECC_WorldDynamic);
+	RightWeaponCollisionBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	RightWeaponCollisionBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
 }
 
 // Handle player movement input (forward/backward/side-to-side)
@@ -144,22 +148,32 @@ void AChouCharacter::AnimMontagePlay(UAnimMontage* MontageToPlay, FName SectionN
 void AChouCharacter::OnRightWeaponOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	//if (IsValid(SweepResult.GetActor()) && SweepResult.GetActor() != this)
+	//{
+	//	IHitInterface* HitInterface = Cast<IHitInterface>(SweepResult.GetActor());
+	//	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Apply Damage"));
+	//	if (HitInterface)
+	//	{
+	//		HitInterface->HitInterface_Implementation(SweepResult); // Apply hit to interface
+	//	}
+
+	//	// Apply damage using Unreal's ApplyDamage function
+	//	UGameplayStatics::ApplyDamage(
+	//		SweepResult.GetActor(),
+	//		BaseDamage, // Apply the base damage value
+	//		GetController(),
+	//		this,
+	//		UDamageType::StaticClass());
+	//}
+
 	if (IsValid(SweepResult.GetActor()) && SweepResult.GetActor() != this)
 	{
-		IHitInterface* HitInterface = Cast<IHitInterface>(SweepResult.GetActor());
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Cyan, TEXT("Apply Damage"));
-		if (HitInterface)
-		{
-			HitInterface->HitInterface_Implementation(SweepResult); // Apply hit to interface
-		}
-
-		// Apply damage using Unreal's ApplyDamage function
-		UGameplayStatics::ApplyDamage(
-			SweepResult.GetActor(),
-			BaseDamage, // Apply the base damage value
-			GetController(),
-			this,
-			UDamageType::StaticClass());
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Apply Damage"));
+	
+	}
+	else 
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Not Valid"));
 	}
 }
 
@@ -191,11 +205,11 @@ void AChouCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 // Activate the right weapon's collision box for interactions
 void AChouCharacter::ActivateRightWeapon()
 {
-	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	RightWeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
 // Deactivate the right weapon's collision box
 void AChouCharacter::DeactivateRightWeapon()
 {
-	RightWeaponCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RightWeaponCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

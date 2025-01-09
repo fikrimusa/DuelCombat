@@ -106,7 +106,7 @@ private:
 
 	// Collision box for detecting right weapon hits.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	UBoxComponent* RightWeaponCollision;
+	UBoxComponent* RightWeaponCollisionBox;
 
 	// Base damage value applied by the character's attacks.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
