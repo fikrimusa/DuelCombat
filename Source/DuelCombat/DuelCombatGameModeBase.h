@@ -1,10 +1,10 @@
-// Developed by Fikri
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "DuelCombatGameModeBase.generated.h"
+
+class UHttpHandler;
 
 /**
  * ADuelCombatGameModeBase class handles the game mode logic for Duel Combat.
@@ -15,5 +15,13 @@ class DUELCOMBAT_API ADuelCombatGameModeBase : public AGameModeBase
 {
 	GENERATED_BODY()
 
-	// Additional functionality for the game mode can be added here.
+public:
+	ADuelCombatGameModeBase();
+
+	virtual void PostLogin(APlayerController* NewPlayer) override;
+	void OnAccountSent(bool bSuccess);
+	void SetHttpHandler(UHttpHandler* NewHttpHandler);
+
+private:
+	UHttpHandler* httpHandlerInstance;
 };
